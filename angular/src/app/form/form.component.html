@@ -1,0 +1,270 @@
+<div *ngIf="loaded" class="settings">
+    <div id="notices-settings">
+        <div (click)="toggle()" class="settings-title">
+            <i class="glyphicon glyphicon-cog"></i>
+            <span>{{ 'FILTER SETTINGS' | translate }}</span>
+            <i class="triangle glyphicon glyphicon-triangle-bottom pull-right"></i>
+        </div>
+        <div [hidden]="hide" class="settings-content">
+            <p class="error color-red lead" *ngIf="errorMessage">{{errorMessage}}</p>
+            <div class="row">
+                <div class="error-report">
+                    <a class="color-blue" href="/faq" target="_blank">
+                        <span class="glyphicon glyphicon-question-sign lead"></span>
+                        <span>{{ 'Please read a short instruction to use SpyLance service effectively.' | translate }}</span>
+                    </a>
+                </div>
+                <div class="error-report color-blue">
+                    <i class="glyphicon glyphicon-info-sign lead"></i>
+                    <span>{{ 'Switch on/off in order to change the settings.' | translate }}</span>
+                </div>
+                <div class="error-report color-red">
+                    <span class="glyphicon glyphicon-info-sign lead" aria-hidden="true"></span>
+                    <span>{{ 'The filter settings are saved automatically after changing any option!' | translate }}</span>
+                </div>
+            </div>
+            <div class="row margin-bottom-40 margin-top-20">
+                <div nglDropdown [(open)]="settingsSelectOpen">
+                    <button class="create-settings-form-container slds-button slds-button--neutral color-bluedarker"
+                            nglDropdownTrigger>
+                        <span class="slds-truncate">{{ 'Current settings' | translate }}: {{ user.settings.name }}</span>
+                        <i class="glyphicon glyphicon-triangle-bottom settings-select-button"></i>
+                    </button>
+                    <div class="create-settings-form-container slds-dropdown slds-dropdown--left">
+                        <p class="error color-red margin-bottom-20" *ngIf="addSettingsErrorMessage">
+                            {{addSettingsErrorMessage}}
+                        </p>
+                        <ul class="dropdown__list" role="menu">
+                            <li class="clearfix slds-dropdown__item" *ngFor="let item of user.allSettings">
+                                <a class="pull-left settings-element settings-element-left text-center"
+                                   role="menuitem" nglDropdownItem
+                                   (click)="changeSettingsList(item.id); settingsSelectOpen = false;">
+                                    <p class="slds-truncate">{{item.name}}</p>
+                                </a>
+                                <a class="pull-left settings-element settings-element-right text-center"
+                                   role="menuitem" nglDropdownItem
+                                   (click)="removeSettings(item.id)">
+                                    <i class="glyphicon glyphicon-remove color-red padding-0"></i>
+                                </a>
+                            </li>
+                            <li class="slds-dropdown__item margin-top-20 margin-bottom-20">
+                                <form (ngSubmit)="onSubmit()" #settingsCreateForm="ngForm">
+                                    <label for="create-settings-form-name">{{ 'Create new list' | translate }}</label>
+                                    <div class="col-xs-12">
+                                        <input required class="form-control" name="name"
+                                               id="create-settings-form-name"
+                                               type="text" placeholder="{{ 'List name...' | translate }}"
+                                               [(ngModel)]="settingsCreateModel.name" #spy>
+                                    </div>
+                                    <div class="col-xs-12">
+                                        <button class="btn btn-primary" type="submit"
+                                                (click)="addSettings(); settingsCreateForm.reset()"
+                                                [disabled]="!settingsCreateForm.form.valid">
+                                            <i class="glyphicon glyphicon-plus"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="user.filters" class="filters">
+                <label for="filter-value">{{ 'Keywords:' | translate }}</label>
+                <p class="error color-red" *ngIf="filtersErrorMessage">{{filtersErrorMessage}}</p>
+                <form (ngSubmit)="onSubmit()" #filterCreateForm="ngForm">
+                    <table id="filters_list">
+                        <tbody>
+                        <tr id="add-filter-field">
+                            <td class="filter-td">
+                                <input id="filter-value" class="form-control"
+                                       required type="text" name="value"
+                                       placeholder="{{ 'Add keyword...' | translate }}"
+                                       [(ngModel)]="filterCreateModel.value" #spy>
+                            </td>
+                            <td class="btn-td">
+                                <button class="btn btn-primary"
+                                        (click)="addAllFilters(); filterCreateForm.reset()"
+                                        [disabled]="!filterCreateForm.form.valid"
+                                        type="submit">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="filter-tr">
+                            <td class="filter-td results" colspan="2">
+                                <div *ngFor="let filter of user.filters" id="{{ filter.id }}" class="filter-td">
+                                    <i (click)="removeFilter(filter.id)" class="glyphicon glyphicon-remove"></i>
+                                    <span class="filter-value">{{ filter.value }}</span>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            <div>
+                <form #settingsUpdateForm="ngForm" class="settings-form">
+                    <p class="error color-red text-center margin-bottom-20" *ngIf="settingsErrorMessage">
+                        {{settingsErrorMessage}}</p>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="checkbox-switch margin-bottom-20">
+                                <input (change)="saveSettings(settingsUpdateForm)" id="searchTitle"
+                                       name="searchTitle" type="checkbox"
+                                       [(ngModel)]="settingsUpdateModel.searchTitle" #spy>
+                                <label for="searchTitle" class="label-info"></label>
+                                - <span>{{ "search in title" | translate }}</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="checkbox-switch margin-bottom-20">
+                                <input (change)="saveSettings(settingsUpdateForm)" id="searchDescription"
+                                       name="searchDescription" type="checkbox"
+                                       [(ngModel)]="settingsUpdateModel.searchDescription" #spy>
+                                <label for="searchDescription" class="label-info"></label>
+                                - <span>{{ 'search in description' | translate }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="checkbox-switch margin-bottom-20">
+                            <input (change)="saveSettings(settingsUpdateForm)" id="showPrice"
+                                   name="showPrice" type="checkbox"
+                                   [(ngModel)]="settingsUpdateModel.showPrice" #spy>
+                            <label for="showPrice" class="label-info"></label>
+                            - <span>{{ 'show only with price' | translate }}</span>
+                        </div>
+                    </div>
+                    <div *ngIf="currencies" class="row">
+                        <div class="form-group">
+                            <label for="currency">{{ 'Select currency to be shown in the project’s price:' | translate
+                                }}</label>
+                            <select (change)="saveSettings(settingsUpdateForm)"
+                                    *ngIf="currencies" class="form-control"
+                                    name="currency" id="currency"
+                                    [(ngModel)]="settingsUpdateModel.currency" #spy>
+                                <option *ngFor="let currency of currencies"
+                                        value="{{ currency.value }}">{{ currency.desc }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label>{{ 'Enter price range:' | translate}}</label>
+                        <div class="form-group">
+                            <div class="col-sm-6">
+                                <input (change)="saveSettings(settingsUpdateForm)"
+                                       class="form-control margin-bottom-20"
+                                       type="text" placeholder="{{ 'Starting price...' | translate }}" name="valueFrom"
+                                       [(ngModel)]="settingsUpdateModel.valueFrom" #spy>
+                            </div>
+                            <div class="col-sm-6">
+                                <input (change)="saveSettings(settingsUpdateForm)"
+                                       class="form-control margin-bottom-20"
+                                       type="text" placeholder="{{ 'Ending price..' | translate }}" name="valueTo"
+                                       [(ngModel)]="settingsUpdateModel.valueTo" #spy>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <label>{{ 'Aggregated marketplaces:' | translate }}</label>
+                    </div>
+                    <fieldset ngl-form-group class="slds-m-top--small">
+                        <div *ngIf="markets" ngModelGroup="parsers">
+                            <div *ngFor="let lang of markets | ObjNgFor">
+                                <div class="row margin-bottom-20">
+                                    <p>
+                                        <img width='32' src="/favicons/{{ lang }}.ico"> {{ lang.toUpperCase() }} -
+                                        <span>{{ 'SPEAKING MARKETPLACES:' | translate }}</span>
+                                    </p>
+                                </div>
+                                <div *ngFor="let type of markets[lang] | ObjNgFor">
+                                    <div class="row margin-bottom-20">
+                                        <p>
+                                            <span>{{'Marketplaces of remote work'|translate}}</span>
+                                            ({{ type.toUpperCase() }}):
+                                        </p>
+                                        <div *ngFor="let item of markets[lang][type]">
+                                            <div class="col-xs-6">
+                                                <div class="market-checkbox">
+                                                    <ngl-form-group-element
+                                                            label="{{ item.site }}"
+                                                            class="pull-left slds-m-top--small">
+                                                        <i class="market-stat glyphicon"
+                                                           [ngClass]="(item.stat == '1') ?
+                                                                'glyphicon-ok-circle color-blue' :
+                                                                'glyphicon-warning-sign color-red'">
+                                                        </i>
+                                                        <img width="16" class="site-icon" src='{{ item.favicon }}'>
+                                                        <input nglFormControl
+                                                               (change)="saveSettings(settingsUpdateForm)"
+                                                               name="{{ item.value }}" type="checkbox"
+                                                               [ngModel]="settingsUpdateModel.parsers[item.value]"
+                                                        >
+                                                    </ngl-form-group-element>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div *ngIf="lang === 'ru' || lang === 'en'" class="row">
+                                    <div class="col-sm-4">
+                                        <ngl-form-checkbox
+                                                (change)="toggleParsers(lang, settingsUpdateForm, langInput.checked)"
+                                                label="{{ 'Select all' | translate }}" class="slds-m-top--small">
+                                            <input [checked]="langs[lang]"
+                                                   #langInput nglFormControl
+                                                   type="checkbox" name="{{ lang }}">
+                                        </ngl-form-checkbox>
+                                    </div>
+                                </div>
+                                <br>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="error-report color-red">
+                        <i class="glyphicon glyphicon-warning-sign lead"></i>
+                        - <span>{{ 'means that aggregated marketplace is currently unavailable.' | translate}}</span>
+                    </div>
+                    <div class="error-report color-blue">
+                        <i class="glyphicon glyphicon-info-sign lead"></i>
+                        <span>{{ 'Switch on/off in order to change the settings.' | translate }}</span>
+                    </div>
+                    <div class="row">
+                        <div class="checkbox-switch margin-bottom-20">
+                            <input (change)="saveSettings(settingsUpdateForm)"
+                                   id="showDescription"
+                                   name="showDescription" type="checkbox"
+                                   [(ngModel)]="settingsUpdateModel.showDescription" #spy>
+                            <label for="showDescription" class="label-info"></label>
+                            - <span>{{ 'expanded display of offers' | translate }}</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="checkbox-switch margin-bottom-20">
+                            <input (change)="saveSettings(settingsUpdateForm)"
+                                   id="soundNotification"
+                                   name="soundNotification" type="checkbox"
+                                   [(ngModel)]="settingsUpdateModel.soundNotification" #spy>
+                            <label for="soundNotification" class="label-info"></label>
+                            - <span>{{ 'sound notifications' | translate }}</span>
+                        </div>
+                    </div>
+                    <div class="error-report color-red">
+                        <span class="glyphicon glyphicon-info-sign lead" aria-hidden="true"></span>
+                        <span>{{ 'The filter settings are saved automatically after changing any option!' | translate }}</span>
+                    </div>
+                    <br>
+                    <div class="btn-settings-settings-ok btn"
+                         (click)="toggle()">
+                        <i class="glyphicon glyphicon-ok"></i>
+                        <span>{{ 'TOGGLE' | translate }}</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

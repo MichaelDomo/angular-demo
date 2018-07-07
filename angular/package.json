@@ -1,0 +1,42 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo test",
+    "clean": "rm -rf dist",
+    "tsc": "tsc",
+    "build": "browserify -s main dist/main.js > dist/bundle.js",
+    "minify": "uglifyjs dist/bundle.js --screw-ie8 --compress --mangle --output dist/bundle.min.js",
+    "prod": "npm run tsc && npm run build && npm run minify"
+  },
+  "dependencies": {
+    "@angular/common": "^4.2.3",
+    "@angular/compiler": "^4.2.3",
+    "@angular/core": "^4.2.3",
+    "@angular/forms": "^4.2.3",
+    "@angular/http": "^4.2.3",
+    "@angular/platform-browser": "^4.2.3",
+    "@angular/platform-browser-dynamic": "^4.2.3",
+    "@angular/router": "^4.2.3",
+    "@angular/upgrade": "^4.2.3",
+    "@ngx-translate/core": "^6.0.1",
+    "@ngx-translate/http-loader": "^0.0.3",
+    "angular-in-memory-web-api": "^0.3.2",
+    "core-js": "^2.4.1",
+    "ng-lightning": "^1.3.0",
+    "reflect-metadata": "^0.1.10",
+    "rxjs": "^5.4.1",
+    "systemjs": "^0.19.39",
+    "zone.js": "^0.8.12"
+  },
+  "devDependencies": {
+    "@angular/cli": "^1.1.2",
+    "@angular/compiler-cli": "^4.2.3",
+    "@types/core-js": "^0.9.41",
+    "@types/node": "^7.0.31",
+    "browserify": "^14.4.0",
+    "concurrently": "^3.4.0",
+    "typescript": "^2.4.0",
+    "uglifyjs": "^2.4.11"
+  }
+}

@@ -1,0 +1,107 @@
+<div *ngIf="loaded" id="favorites-list">
+    <div (click)="toggleBookmarks()" class="settings-title">
+        <i class="glyphicon glyphicon-cog"></i>
+        <span>{{ 'BOOKMARKS' | translate }}</span>
+        <i class="triangle glyphicon pull-right glyphicon-triangle-bottom"></i>
+    </div>
+    <div [hidden]="hideBookmarks" class="favorites-content">
+        <p class="error color-red text-center margin-bottom-20" *ngIf="bookmarksErrorMessage">
+            {{bookmarksErrorMessage}}</p>
+        <div id="bookmarks-warning" *ngIf="bookmarksEmptyMessage" class="color-red">
+            <span>{{ 'You don\'t have any bookmarks!' | translate }}</span>
+        </div>
+        <div id="list-favorite-card">
+            <div *ngFor="let bookmark of bookmarks" class="notice-card favorite-card favorited">
+                <div class="card-header row">
+                    <div class="datetime col-xs-7">
+                        <span class="date">{{ bookmark.project.date }}</span>
+                        <span class="time">{{ bookmark.project.time }}</span>
+                        <a href="{{ bookmark.project.link }}" class="btn-open btn btn-open-top"
+                           title="Открыть" target="_blank">
+                            <i class="glyphicon glyphicon-link"></i>
+                        </a>
+                        <div (click)="removeBookmark(bookmark.project.id);"
+                             title="Закладка" class="btn-bookmark btn btn-bookmark-top">
+                            <i class="glyphicon glyphicon-bookmark"></i>
+                        </div>
+                    </div>
+                    <div class="site col-xs-3">
+                        <span class="site-name">{{ bookmark.project.parser.site }}</span>
+                    </div>
+                </div>
+                <div class="card-mid row">
+                    <div (click)="toggleBookmarkDescription(bookmark);" class="card-title col-sm-8">
+                        <img width="16" class="site-icon" src="{{ bookmark.project.parser.favicon }}">
+                        {{ bookmark.project.title }}
+                    </div>
+                    <div class="card-price col-sm-4">
+                        <span *ngIf="bookmark.project.price">{{ bookmark.project.price }} {{ bookmark.project.currency }}</span>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div [hidden]="!bookmark.hideDescription" class="card-content"
+                         [innerHTML]="bookmark.project.description"></div>
+                    <a href="{{ bookmark.project.link }}" class="btn-open btn" target="_blank">{{ 'Open' | translate }}</a>
+                    <div (click)="removeBookmark(bookmark.project.id);" class="btn-bookmark btn">{{ 'Bookmark' | translate }}</div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+        <div class="row bookmarks-button">
+            <div (click)="toggleBookmarks()" class="btn-bookmarks-ok btn">
+                <i class="glyphicon glyphicon-ok"></i>
+                <span>{{ 'TOGGLE' | translate }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="list-notice-card">
+    <div (click)="concatProjects()" *ngIf="newProjectsCount" id="show-new-notices">
+        <i class="glyphicon glyphicon-plus"></i>
+        <span>{{ 'SHOW NEW PROJECTS' | translate }}</span> ({{ newProjectsCount }})
+    </div>
+    <div *ngFor="let project of projects" class="notice-card notice" [ngClass]="{'favorited': project.isBookmark}">
+        <div class="card-header row">
+            <div class="datetime col-xs-7">
+                <span class="date">{{ project.date }}</span>
+                <span class="time">{{ project.time }}</span>
+                <a href="{{ project.link }}" class="btn-open btn btn-open-top"
+                    title="{{ 'Open' | translate }}" target="_blank">
+                    <i class="glyphicon glyphicon-link"></i>
+                </a>
+                <div (click)="addBookmark(project)"
+                     title="{{ 'Bookmark' | translate }}" class="btn-bookmark btn btn-bookmark-top">
+                    <i class="glyphicon glyphicon-bookmark"></i>
+                </div>
+            </div>
+            <div class="site col-xs-3">
+                <span class="site-name">{{ project.parser.site }}</span>
+            </div>
+        </div>
+        <div class="card-mid row">
+            <div (click)="toggleProjectDescription(project)" class="card-title col-sm-8">
+                <img width="16" class="site-icon" src="{{ project.parser.favicon }}">
+                <span [innerHTML]="project.title"></span>
+            </div>
+            <div class="card-price col-sm-4">
+                <span *ngIf="project.price">{{ project.price }} {{ project.currency }}</span>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div [hidden]="project.hideDescription" class="card-content" [innerHTML]="project.description"></div>
+            <a href="{{ project.link }}" class="btn-open btn" target="_blank">{{ 'Open' | translate }}</a>
+            <div (click)="addBookmark(project)" class="btn-bookmark btn">{{ 'Bookmark' | translate }}</div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div *ngIf="!projectsEmptyMessage" (click)="addPrev()" id="add-more-notices">
+        <i class="glyphicon glyphicon-plus"></i>
+        <span>{{ 'LOAD MORE PROJECTS' | translate }}</span>
+    </div>
+    <div *ngIf="projectsEmptyMessage" id="notices-warning">{{ 'NO PROJECTS ANYMORE' | translate }}</div>
+</div>
+
+<div *ngIf="newProjectsCount" class="projects-flag">
+    <span></span>
+    <div class="text">{{ newProjectsCount }}</div>
+</div>
